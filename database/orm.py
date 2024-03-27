@@ -17,5 +17,8 @@ def check_database(offer):
         """, offer)
         connection.commit()
         print(f'Объявление {offer_id} добавлено в БД')
+    else:
+        print(f'Объявление {offer_id} уже есть в БД. Пропускаем.')
+
 
     connection.close()
