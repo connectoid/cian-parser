@@ -3,16 +3,7 @@ import requests
 from services.tools import (get_datetime, get_title, create_offer, create_request, 
                             save_json, load_json)
 from config.config import cookies, headers
-
-
-def get_city_id(city):
-    params = {
-        'section_type': '1',
-    }
-
-    response = requests.get(f'https://{city}.cian.ru/cian-api/site/v1/adfox/home/', params=params, cookies=cookies, headers=headers)
-    return response.json()['data']['params']['puid36']  
-
+from database.orm import add_flat
 
 def get_json(json_data):
     response = requests.post(
@@ -50,31 +41,50 @@ def get_offers_list(json):
             rooms_count = None
         total_area = flat['totalArea']
         title = get_title(title, rooms_count, total_area, floor, floor_count)
+        photos_list = flat['photos']
+        photos_list = [photo['fullUrl'] for photo in photos_list]
+        photos = ', '.join(photos_list)
+        photo_mini = flat['photos'][0]['thumbnail2Url']
         offer = create_offer(offer_id, title, url, added_datetime, description_short,
-                             description, address, phone, price, total_area, rooms_count, floor, floor_count)
+                             description, address, phone, price, total_area, rooms_count,
+                             floor, floor_count, photo_mini, photos)
         offers.append(offer)
     return offers
 
 
-def get_offers(city, beds_count, rooms_count, date_gte, date_lt, pages):
-    city_id = get_city_id(city)
+def get_offers(prefs):
     offers_json = []
     flats_count = 1
 
-    for page in range(1, pages + 1):
-        print(f'Page {page}')
-        json_data = create_request(city_id, beds_count, rooms_count, date_gte, date_lt, page)
+    json_data = create_request(prefs)
 
-        offers_json_data = get_json(json_data)
-        save_json(offers_json_data)
-            
-        offers_json_data = load_json()
-        offers = get_offers_list(offers_json_data)
+    offers_json_data = get_json(json_data)
+    save_json(offers_json_data)
+        
+    offers_json_data = load_json()
+    offers = get_offers_list(offers_json_data)
 
-        for offer in offers:
-            offers_json.append(offer)
-            flats_count += 1
+    for offer in offers:
+        offers_json.append(offer)
+        flats_count += 1
 
     save_json(offers_json, file='parsed_data.json')
     # pandas.read_json("parsed_data.json").to_excel("parsed_data.xlsx")
     return flats_count, offers_json
+
+
+def parse(tg_id, prefs):
+    count = 1
+    new_offers = []
+    flats_count, offers_json = get_offers(prefs)
+    print(f'По запросу найдено {flats_count} квартир')
+
+    for item in offers_json:
+        if add_flat(tg_id, item):
+            if item['price'] <= prefs['min_price']:
+                new_offers.append(item)
+                count += 1
+                if count >= 5:
+                    break
+    
+    return new_offers

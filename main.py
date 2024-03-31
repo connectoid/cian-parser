@@ -1,7 +1,10 @@
+import environs
+
 from services.parsing import get_offers
 from database.orm import check_database
 
-def main():
+def parse():
+    new_offers = []
     flats_count, offers_json = get_offers(
         city='Kostroma',
         beds_count=3,
@@ -12,9 +15,11 @@ def main():
     print(f'По запросу найдено {flats_count} квартир')
 
     for item in offers_json:
-        check_database(item)
-
+        if check_database(item):
+            new_offers.append(item)
+    
+    return new_offers
 
 
 if __name__ == '__main__':
-    main()
+    parse()

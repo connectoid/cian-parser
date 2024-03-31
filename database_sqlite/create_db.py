@@ -18,7 +18,9 @@ def main():
             area INTEGER,
             rooms_count INTEGER,
             floor INTEGER,
-            fllor_count INTEGER
+            fllor_count INTEGER,
+            photo_mini TEXT,
+            photos TEXT
         )
     """)
     connection.close()

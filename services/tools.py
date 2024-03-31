@@ -1,11 +1,38 @@
 import json
+import requests
 from datetime import datetime
+from transliterate import translit, get_available_language_codes
 
+from config.config import cookies, headers
 
 OUT_DATA_FOLDER = 'out_data'
 
+def get_city_id(city):
+    print(city)
+    city = translit(city, 'ru', reversed=True)
+    print(city)
+    params = {
+        'section_type': '1',
+    }
 
-def create_request(city_id, beds_count, rooms_count, date_gte, date_lt, page):
+    response = requests.get(f'https://{city}.cian.ru/cian-api/site/v1/adfox/home/', params=params, cookies=cookies, headers=headers)
+    city_id = response.json()['data']['params']['puid36']  
+    return city_id
+
+
+
+def create_request(prefs):
+
+    city_id = get_city_id(prefs['city'])
+    print(city_id)
+
+
+    """
+    'show_hotels': {
+            'type': 'term',
+            'value': True,
+        },
+    """
     json_data = {
         'jsonQuery': {
             '_type': 'flatrent',
@@ -23,27 +50,31 @@ def create_request(city_id, beds_count, rooms_count, date_gte, date_lt, page):
                 'type': 'term',
                 'value': '1',
             },
+                'show_hotels': {
+                'type': 'term',
+                'value': prefs['is_hotel'],
+            },
                 'room': {
                 'type': 'terms',
                 'value': [
-                    rooms_count,
+                    prefs['rooms_count'],
                 ],
             },
                 'page': {
                 'type': 'term',
-                'value': page,
+                'value': 1,
             },
             'dates': {
                 'type': 'date_range',
                 'value': {
-                    'gte': f'{date_gte}',
-                    'lt': f'{date_lt}',
+                    'gte': prefs['date_gte'],
+                    'lt': prefs['date_lt'],
                 },
             },
             'beds_count': {
                 'type': 'range',
                 'value': {
-                    'gte': beds_count,
+                    'gte': prefs['beds_count'],
                 },
             },
             'sort': {
@@ -74,10 +105,11 @@ def get_title(title, rooms_count, total_area, floor, floor_count):
     return title
 
 
-def create_offer(id, title, url, added_datetime, description_short,
-                 description, address, phone, price, total_area, rooms_count, floor, floor_count):
+def create_offer(offer_id, title, url, added_datetime, description_short,
+                 description, address, phone, price, total_area, rooms_count, 
+                 floor, floor_count, photo_mini, photos):
     offer = {}
-    offer['offer_id'] = id
+    offer['offer_id'] = offer_id
     offer['title'] = title
     offer['url'] = url
     offer['added_datetime'] = added_datetime
@@ -91,6 +123,8 @@ def create_offer(id, title, url, added_datetime, description_short,
     offer['rooms_count'] = rooms_count
     offer['floor'] = floor
     offer['floor_count'] = floor_count
+    offer['photo_mini'] = photo_mini
+    offer['photos'] = photos
     return offer
 
 
@@ -104,3 +138,37 @@ def load_json(file='data-cian.json'):
         text = json.load(f)
         return text
 
+
+def check_city(city):
+    if isinstance(city, str):
+        city = city.lower()
+        if (get_city_id(city) == 1 and city != 'moskva'):
+            return False
+    return True
+
+
+
+def check_date_gte(date_gte):
+    return True
+
+
+def check_date_lt(date_lt):
+    return True
+
+
+def check_is_hotel_answer(answer):
+    try:
+        num = int(answer)
+        if 0 <= num < 2:
+            return True
+        return False
+    except:
+        return False
+    
+
+def check_int_answer(answer):
+    try:
+        num = int(answer)
+        return True
+    except:
+        return False
