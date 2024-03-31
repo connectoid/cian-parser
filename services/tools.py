@@ -1,6 +1,6 @@
 import json
 import requests
-from datetime import datetime
+import datetime
 from transliterate import translit, get_available_language_codes
 
 from config.config import cookies, headers
@@ -88,8 +88,8 @@ def create_request(prefs):
 
 
 def get_datetime(datetime_stamp):
-    pretty_datetime = datetime.fromtimestamp(datetime_stamp)
-    pretty_datetime = datetime.strftime(pretty_datetime, '%d.%m.%Y %H:%M')
+    pretty_datetime = datetime.datetime.fromtimestamp(datetime_stamp)
+    pretty_datetime = datetime.datetime.strftime(pretty_datetime, '%d.%m.%Y %H:%M')
     return pretty_datetime
 
 
@@ -147,8 +147,25 @@ def check_city(city):
     return True
 
 
+def validate(date_text):
+        try:
+            datetime.date.fromisoformat(date_text)
+            return True
+        except ValueError:
+            return False
+        
 
-def check_date_gte(date_gte):
+def check_date_gte(date):
+    try:
+        year = date.split('.')[-1]
+        mounth = date.split('.')[1]
+        day = date.split('.')[0]
+        new_date = f'{year}-{mounth}-{day}'
+        print(new_date)
+        if validate(new_date):
+            now = datetime.datetime.now()
+            date = datetime.datetime.strptime(date, '%d.%m.%Y')
+            print(now, date)
     return True
 
 
