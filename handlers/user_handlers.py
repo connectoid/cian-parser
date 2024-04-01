@@ -21,7 +21,7 @@ from keyboards.commands_menu import set_commands_menu
 from keyboards.bottom_url_keyboard import get_cian_url_keyboard, get_bottom_keyboard
 from keyboards.main_menu import get_main_menu, get_profile_menu
 
-from database.orm import (add_user, get_prefs, get_prefs_text, set_prefs, get_autocheck_status,
+from database.orm import (add_new_user, get_prefs, get_prefs_text, set_prefs, get_autocheck_status,
                           switch_autocheck)
 
 from services.parsing import parse
@@ -110,11 +110,15 @@ async def process_start_command(message: Message):
     fname = message.from_user.first_name
     lname = message.from_user.last_name
     tg_id = message.from_user.id
-    await add_user(tg_id)
-    # await start_polling(message, tg_id)
-    await message.answer(
-    text=f'Здравствуйте {fname} {lname}! Вы запустили бот для парсинга недвижимости на сайте cian.ru',
-    reply_markup=get_main_menu())
+    if add_new_user(tg_id):
+        await message.answer(
+        text=f'Здравствуйте {fname} {lname}! Вы запустили бот для парсинга недвижимости на сайте cian.ru '
+            'первый раз. Пожалуйста, перейдите в Настройки поиска и измените натройки поумолчанию на свои.',
+        reply_markup=get_main_menu())
+    else:
+        await message.answer(
+        text=f'Здравствуйте {fname} {lname}! Вы запустили бот для парсинга недвижимости на сайте cian.ru',
+        reply_markup=get_main_menu())
 
 
 @router.message(Text(text='Назад'))
@@ -127,7 +131,13 @@ async def process_start_command(message: Message):
 @router.message(Text(text='❔ Помощь'))
 async def process_start_command(message: Message):
     await message.answer(
-        text=f'Здесь будет текст справочной информации по работе с ботом.',
+        text=f'Данный бот позволяет мониторить наличие сдаваемых посуточно квартир на сайте Циан по '
+            'заданным критерием. На данный момент поиск возможен только в городах столицах регионов. '
+            'Критерии поиска, такие как Город, Количество гостей и комнат, Максимальная цена, '
+            'Дата заезда и время проживания можно задать нажав кнопку Настройки поиска в главном меню. '
+            'Там же можно включить или отключить автоматическую проверку новых предложений, при появлении '
+            'новых предложений постпит сообщение в Бот, с описанием, фото квартиры и ссылкой на Циан.\n'
+            'Если бот не может найти какой-то город, попробуйте написать его название транслитом.',
         reply_markup=get_main_menu())
 
 
@@ -199,7 +209,7 @@ async def process_fillform_command(callback: CallbackQuery, state: FSMContext):
 async def process_city_sent(message: Message, state: FSMContext):
     if check_city(message.text):
         await state.update_data(city=message.text)
-        await message.answer(text='Спасибо!\n\nТеперь введите количество комнат.')
+        await message.answer(text='Спасибо!\nТеперь введите количество комнат.')
         await state.set_state(FSMAddCategory.add_rooms_count)
     else:
         await message.answer(text='Город не найден. Проверьте правильность написания города и введите еще раз\n'
@@ -210,7 +220,7 @@ async def process_city_sent(message: Message, state: FSMContext):
 async def process_rooms_count_sent(message: Message, state: FSMContext):
     if check_int_answer(message.text):
         await state.update_data(rooms_count=message.text)
-        await message.answer(text='Спасибо!\n\nТеперь введите количество гостей.')
+        await message.answer(text='Спасибо!\nТеперь введите количество гостей.')
         await state.set_state(FSMAddCategory.add_beds_count)
     else:
         await message.answer(text='Вы ввели не число, попробуйте еще раз.\n'
@@ -221,7 +231,7 @@ async def process_rooms_count_sent(message: Message, state: FSMContext):
 async def process_beds_count_sent(message: Message, state: FSMContext):
     if check_int_answer(message.text):
         await state.update_data(beds_count=message.text)
-        await message.answer(text='Спасибо!\n\nТеперь введите максимальную цену.')
+        await message.answer(text='Спасибо!\nТеперь введите максимальную цену.')
         await state.set_state(FSMAddCategory.add_min_price)
     else:
         await message.answer(text='Вы ввели не число, попробуйте еще раз.\n'
@@ -232,7 +242,7 @@ async def process_beds_count_sent(message: Message, state: FSMContext):
 async def process_min_price_sent(message: Message, state: FSMContext):
     if check_int_answer(message.text):
         await state.update_data(min_price=message.text)
-        await message.answer(text='Спасибо!\n\nТеперь введите дату заезда в формате ДД.ММ.ГГГГ, '
+        await message.answer(text='Спасибо!\nТеперь введите дату заезда в формате ДД.ММ.ГГГГ, '
                                 'например 01.09.2024')
         await state.set_state(FSMAddCategory.add_date_gte)
     else:
@@ -244,7 +254,7 @@ async def process_min_price_sent(message: Message, state: FSMContext):
 async def process_date_gte_sent(message: Message, state: FSMContext):
     if check_date_gte(message.text):
         await state.update_data(date_gte=message.text)
-        await message.answer(text='Спасибо!\n\nТеперь введите количество дней проживания или '
+        await message.answer(text='Спасибо!\nТеперь введите количество дней проживания или '
                                 'дату выезда в формате ДД.ММ.ГГГГ, '
                                 'например 01.09.2024')
         await state.set_state(FSMAddCategory.add_date_lt)
@@ -261,7 +271,7 @@ async def process_date_lt_sent(message: Message, state: FSMContext):
     date_lt = check_date_lt(message.text, date_gte)
     if date_lt:
         await state.update_data(date_lt=date_lt)
-        await message.answer(text='Спасибо!\n\nТеперь укажите, искать ли отели или только квартиры? '
+        await message.answer(text='Спасибо!\nТеперь укажите, искать ли отели или только квартиры? '
                                     '(0 - Только квартиры, 1 - Квартиры и отели)')
         await state.set_state(FSMAddCategory.add_is_hotel)
     else:
@@ -281,7 +291,7 @@ async def process_is_hotels_sent(message: Message, state: FSMContext):
         tg_id = message.from_user.id
         set_prefs(tg_id, user_data)
         await state.clear()
-        await message.answer(text='Спасибо!\n\nНастройки добавлены',
+        await message.answer(text='Спасибо!\nНастройки добавлены',
                              reply_markup=get_main_menu())
     else:
         await message.answer(text='Вы неправильно указали признак поиска только отелей.\n'

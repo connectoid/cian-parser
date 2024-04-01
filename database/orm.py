@@ -19,13 +19,13 @@ Base.metadata.create_all(engine)
 Session = sessionmaker(bind=engine)
 
 
-def add_user(tg_id):
+def add_new_user(tg_id):
     session = Session()
     user = session.query(User).filter(User.tg_id == tg_id).first()
     if user is None:
         new_user = User(
             tg_id=tg_id,
-            autocheck_enable=True,
+            autocheck_enable=False,
             city='Moskva',
             rooms_count=1,
             beds_count=1,
