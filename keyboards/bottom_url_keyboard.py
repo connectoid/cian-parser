@@ -22,19 +22,27 @@ def get_cian_url_keyboard(url):
     return cian_url_keyboard
 
 
-def get_bottom_keyboard():
+def get_bottom_keyboard(autocheck):
 
     button_1 = InlineKeyboardButton(
         text='Изменить настройки',
         callback_data='change_prefs'
     )
-    url_button_2 = InlineKeyboardButton(
-        text='Документация Telegram Bot API',
-        url='https://core.telegram.org/bots/api'
-    )
+    if autocheck:
+        button_2 = InlineKeyboardButton(
+            text=f'Выключить автопроверку',
+            callback_data='change_autocheck'
+        )
+    else:
+        button_2 = InlineKeyboardButton(
+            text=f'Включить автопроверку',
+            callback_data='change_autocheck'
+        )
+
 
     # Создаем объект инлайн-клавиатуры
     bottom_keyboard = InlineKeyboardMarkup(
-        inline_keyboard=[[button_1]]
+        inline_keyboard=[[button_1],
+                         [button_2]]
     )
     return bottom_keyboard

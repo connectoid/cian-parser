@@ -77,14 +77,14 @@ def parse(tg_id, prefs):
     count = 1
     new_offers = []
     flats_count, offers_json = get_offers(prefs)
-    print(f'По запросу найдено {flats_count} квартир')
+    # print(f'По запросу найдено {flats_count} квартир')
 
     for item in offers_json:
         if add_flat(tg_id, item):
             if item['price'] <= prefs['min_price']:
                 new_offers.append(item)
                 count += 1
-                if count >= 5:
-                    break
+                # if count >= 3:
+                #     break
     
     return new_offers

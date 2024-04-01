@@ -1,3 +1,22 @@
+import logging
+from environs import Env
+
+
+logger = logging.getLogger(__name__)
+env: Env = Env()
+env.read_env()
+
+logging.basicConfig(
+    level=logging.INFO,
+    filename = "botlog.log",
+    filemode='a',
+    format = "%(asctime)s - %(module)s - %(levelname)s - %(funcName)s: %(lineno)d - %(message)s",
+    datefmt='%H:%M:%S',
+    )
+
+token = env('token')
+
+
 cookies = {
     '_CIAN_GK': '94c63ded-a282-4949-a2b9-fc737cb9e328',
     '_gcl_au': '1.1.323410645.1710834443',

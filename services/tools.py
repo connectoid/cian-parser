@@ -3,7 +3,7 @@ import requests
 import datetime
 from transliterate import translit, get_available_language_codes
 
-from config.config import cookies, headers
+from config.config import cookies, headers, logger
 
 OUT_DATA_FOLDER = 'out_data'
 
@@ -14,10 +14,13 @@ def get_city_id(city):
     params = {
         'section_type': '1',
     }
-
-    response = requests.get(f'https://{city}.cian.ru/cian-api/site/v1/adfox/home/', params=params, cookies=cookies, headers=headers)
-    city_id = response.json()['data']['params']['puid36']  
-    return city_id
+    try:
+        response = requests.get(f'https://{city}.cian.ru/cian-api/site/v1/adfox/home/', params=params, cookies=cookies, headers=headers)
+        city_id = response.json()['data']['params']['puid36']  
+        return city_id
+    except Exception as e:
+        logger.error(f'Ошибка запроса города: {e}')
+        return 1
 
 
 
@@ -161,16 +164,44 @@ def check_date_gte(date):
         mounth = date.split('.')[1]
         day = date.split('.')[0]
         new_date = f'{year}-{mounth}-{day}'
-        print(new_date)
         if validate(new_date):
             now = datetime.datetime.now()
             date = datetime.datetime.strptime(date, '%d.%m.%Y')
-            print(now, date)
-    return True
+            if date < now:
+                 logger.warning('Дата из прошлого')
+                 return False
+            else:
+                 logger.info('Дата указана правильно')
+                 return True
+            return True
+        else:
+             logger.warning('Формат дата указан правильно, но эта дата не существует')
+             return False
+    except:
+         logger.warning('Неправильный формат даты')
+         return False
 
 
-def check_date_lt(date_lt):
-    return True
+def check_date_lt(date, date_gte):
+    try:
+        days_delta = int(date)
+        date_gte = datetime.datetime.strptime(date_gte, '%d.%m.%Y')
+        date_lt = date_gte + datetime.timedelta(days=days_delta)
+        date_lt = date_lt.strftime('%d.%m.%Y')
+        logger.info(f'Даты выезда посчитана как {date_lt}')
+        return date_lt
+    except:
+        logger.info('Дата выезда введена не числом дней')
+        if check_date_gte(date):
+            date_lt = datetime.datetime.strptime(date, '%d.%m.%Y')
+            date_gte = datetime.datetime.strptime(date_gte, '%d.%m.%Y')
+            if date_lt > date_gte:
+                return date
+            else:
+                return False
+        else:
+            return False
+
 
 
 def check_is_hotel_answer(answer):

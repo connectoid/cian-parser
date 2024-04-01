@@ -1,6 +1,4 @@
 import asyncio
-import logging
-from environs import Env
 
 from aiogram import Bot, Dispatcher
 
@@ -8,21 +6,12 @@ from keyboards.commands_menu import set_commands_menu
 from handlers import user_handlers, other_handlers
 
 from services.parsing import get_offers
+from config.config import logger, token
 
-logger = logging.getLogger(__name__)
-env: Env = Env()
-env.read_env()
 
-token = env('token')
+
 
 async def main():
-    logging.basicConfig(
-        level=logging.INFO,
-        filename = "botlog.log",
-        filemode='a',
-        format = "%(asctime)s - %(module)s - %(levelname)s - %(funcName)s: %(lineno)d - %(message)s",
-        datefmt='%H:%M:%S',
-        )
     logger.info('Starting bot')
     
 

@@ -12,7 +12,7 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     tg_id = Column(BigInteger, nullable=False)
     flats = relationship('Flat', backref='flats', lazy=True)
-    autocheck_enable = Column(Boolean, default=True)
+    autocheck_enable = Column(Boolean, default=False)
     city = Column(String, nullable=False)
     rooms_count = Column(Integer)
     beds_count = Column(Integer, nullable = False)

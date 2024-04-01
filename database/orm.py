@@ -25,6 +25,7 @@ def add_user(tg_id):
     if user is None:
         new_user = User(
             tg_id=tg_id,
+            autocheck_enable=True,
             city='Moskva',
             rooms_count=1,
             beds_count=1,
@@ -35,6 +36,22 @@ def add_user(tg_id):
         )
         session.add(new_user)
         session.commit()
+        return True
+    return False
+
+
+def switch_autocheck(tg_id):
+    session = Session()
+    user = session.query(User).filter(User.tg_id == tg_id).first()
+    user.autocheck_enable = not user.autocheck_enable
+    session.add(user)
+    session.commit()
+
+
+def get_autocheck_status(tg_id):
+    session = Session()
+    user = session.query(User).filter(User.tg_id == tg_id).first()
+    return user.autocheck_enable
 
 
 def add_flat(tg_id, offer):
@@ -75,6 +92,17 @@ def get_prefs(tg_id):
     prefs['date_lt'] = user.date_lt
     prefs['is_hotel'] = user.is_hotel
 
+    return prefs
+
+
+def get_prefs_text(tg_id):
+    session = Session()
+    user = session.query(User).filter(User.tg_id == tg_id).first()
+    if user.is_hotel:
+        is_hotel = 'Да'
+    else:
+        is_hotel = 'Нет'
+
     prefs_text = (
         f'<b>Город:</b> {user.city}\n'
         f'<b>Кол-во комнат:</b> {user.rooms_count}\n'
@@ -82,9 +110,9 @@ def get_prefs(tg_id):
         f'<b>Мин. цена:</b> {user.min_price}\n'
         f'<b>Дата заезда:</b> {user.date_gte}\n'
         f'<b>Дата выезда:</b> {user.date_lt}\n'
-        f'<b>Искать отели:</b> {user.is_hotel}\n'
+        f'<b>Искать отели:</b> {is_hotel}\n'
     )
-    return prefs, prefs_text
+    return prefs_text
 
 
 def set_prefs(tg_id, prefs):
