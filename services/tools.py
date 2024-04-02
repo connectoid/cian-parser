@@ -8,9 +8,7 @@ from config.config import cookies, headers, logger
 OUT_DATA_FOLDER = 'out_data'
 
 def get_city_id(city):
-    print(city)
     city = translit(city, 'ru', reversed=True)
-    print(city)
     params = {
         'section_type': '1',
     }
@@ -27,7 +25,6 @@ def get_city_id(city):
 def create_request(prefs):
 
     city_id = get_city_id(prefs['city'])
-    print(city_id)
 
 
     """

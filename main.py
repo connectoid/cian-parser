@@ -12,7 +12,6 @@ def parse():
         date_gte='01.06.2024',
         date_lt='08.06.2024',
         pages=1)
-    print(f'По запросу найдено {flats_count} квартир')
 
     for item in offers_json:
         if check_database(item):

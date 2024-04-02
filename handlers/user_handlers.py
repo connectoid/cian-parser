@@ -128,7 +128,7 @@ async def process_start_command(message: Message):
         reply_markup=get_main_menu())
 
 
-@router.message(Text(text='❔ Помощь'))
+@router.message(Command(commands='help'), StateFilter(default_state))
 async def process_start_command(message: Message):
     await message.answer(
         text=f'Данный бот позволяет мониторить наличие сдаваемых посуточно квартир на сайте Циан по '
