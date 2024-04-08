@@ -1,0 +1,15 @@
+[Unit]
+Description=Bot for parsinge offers from cian.ru
+After=network.target
+
+[Service]
+EnvironmentFile=/etc/environment
+ExecStart=/root/dev/parser/cian-parser/venv/bin/python bot.py
+ExecReload=/root/dev/parser/cian-parser/venv/bin/python bot.py
+WorkingDirectory=/root/dev/parser/cian-parser/
+KillMode=process
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
