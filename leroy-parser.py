@@ -22,7 +22,7 @@ from bs4 import BeautifulSoup
 
 from pyvirtualdisplay import Display
 
-display = Display(visible=0, size=(1920, 1080))
+display = Display(visible=1, size=(1920, 1080))
 display.start()
 
 url = 'https://leroymerlin.ru/catalogue/tovary-dlya-uborki/'
