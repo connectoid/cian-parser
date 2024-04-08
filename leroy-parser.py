@@ -71,6 +71,7 @@ with webdriver.Chrome(options=options, service=ChromiumService(ChromeDriverManag
     # element = driver.find_element(By.CSS_SELECTOR, '[data-qa="product-cart-button"]')
     # element.click()
     html = driver.page_source
+    print(html)
     # print(html)
     scripts = get_scripts(html) 
     print(len(scripts))
