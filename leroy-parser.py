@@ -20,6 +20,11 @@ from selenium_stealth import stealth
 import requests
 from bs4 import BeautifulSoup
 
+from pyvirtualdisplay import Display
+
+display = Display(visible=0, size=(800, 600))
+display.start()
+
 url = 'https://leroymerlin.ru/catalogue/tovary-dlya-uborki/'
 # url = 'https://leroymerlin.ru/catalogue/teploizolyaciya/'
 # url = 'https://leroymerlin.ru/product/uteplitel-teploknauf-stena-plita-50-mm-6-m-18482116/'
