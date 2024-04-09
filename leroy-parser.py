@@ -16,6 +16,9 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium_stealth import stealth
+from selenium.webdriver.common.proxy import ProxyType
+
+from seleniumwire import webdriver
 
 import requests
 from bs4 import BeautifulSoup
@@ -37,7 +40,7 @@ options = Options()
 # options.add_experimental_option('useAutomationExtension', False)
 options.add_argument("--disable-blink-features=AutomationControlled")
 # options.add_argument('--headless')
-# options.add_argument('--no-sandbox')
+options.add_argument('--no-sandbox')
 prefs = {"profile.managed_default_content_settings.images": 2}
 options.add_experimental_option("prefs", prefs)
 
@@ -46,7 +49,15 @@ def get_scripts(html):
     scripts = soup.find_all('script')
     return scripts
 
-
+# Selenium Wire configuration to use a proxy
+proxy_username = 'zuQ205'
+proxy_password = 'Khmw7T'
+seleniumwire_options = {
+    'proxy': {
+        'http': f'http://{proxy_username}:{proxy_password}@147.45.93.10:8000',
+        'verify_ssl': False,
+    },
+}
 
 with webdriver.Chrome(options=options, service=ChromiumService(ChromeDriverManager().install())) as driver:
 
