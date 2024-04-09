@@ -19,7 +19,7 @@ options.add_argument("--headless=chrome")
 driver = uc.Chrome(options=options)
 
 url = 'https://leroymerlin.ru/catalogue/tovary-dlya-uborki/'
-
+url = 'https://myhttpheader.com/'
 
 driver.get(url)
 time.sleep(10)
