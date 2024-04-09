@@ -23,8 +23,8 @@ from bs4 import BeautifulSoup
 
 from pyvirtualdisplay import Display
 
-# display = Display(visible=0, size=(800, 600))
-# display.start()
+display = Display(visible=0, size=(800, 600))
+display.start()
 
 url = 'https://leroymerlin.ru/catalogue/tovary-dlya-uborki/'
 url = 'https://myip.ru/'
@@ -39,7 +39,7 @@ options = Options()
 # options.add_experimental_option('useAutomationExtension', False)
 options.add_argument("--disable-blink-features=AutomationControlled")
 # options.add_argument('--headless')
-# options.add_argument('--no-sandbox')
+options.add_argument('--no-sandbox')
 prefs = {"profile.managed_default_content_settings.images": 2}
 options.add_experimental_option("prefs", prefs)
 
