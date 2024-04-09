@@ -6,6 +6,7 @@ from urllib.parse import unquote
 
 
 # from selenium import webdriver
+from seleniumwire import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from webdriver_manager.core.os_manager import ChromeType
 from selenium.webdriver.support.ui import WebDriverWait
@@ -16,17 +17,14 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium_stealth import stealth
-from selenium.webdriver.common.proxy import ProxyType
-
-from seleniumwire import webdriver
 
 import requests
 from bs4 import BeautifulSoup
 
 from pyvirtualdisplay import Display
 
-display = Display(visible=0, size=(800, 600))
-display.start()
+# display = Display(visible=0, size=(800, 600))
+# display.start()
 
 url = 'https://leroymerlin.ru/catalogue/tovary-dlya-uborki/'
 url = 'https://myip.ru/'
@@ -41,26 +39,27 @@ options = Options()
 # options.add_experimental_option('useAutomationExtension', False)
 options.add_argument("--disable-blink-features=AutomationControlled")
 # options.add_argument('--headless')
-options.add_argument('--no-sandbox')
+# options.add_argument('--no-sandbox')
 prefs = {"profile.managed_default_content_settings.images": 2}
 options.add_experimental_option("prefs", prefs)
+
+seleniumwire_options = {'proxy': {
+    'http': 'http://zuQ205:Khmw7T@147.45.93.10:8000',
+    'https': 'https://zuQ205:Khmw7T@147.45.93.10:8000',
+    }}
 
 def get_scripts(html):
     soup = BeautifulSoup(html, 'lxml')
     scripts = soup.find_all('script')
     return scripts
 
-# Selenium Wire configuration to use a proxy
-proxy_username = 'zuQ205'
-proxy_password = 'Khmw7T'
-seleniumwire_options = {
-    'proxy': {
-        'http': f'http://{proxy_username}:{proxy_password}@147.45.93.10:8000',
-        'verify_ssl': False,
-    },
-}
 
-with webdriver.Chrome(seleniumwire_options=seleniumwire_options, service=ChromiumService(ChromeDriverManager().install())) as driver:
+
+with webdriver.Chrome(
+        options=options,
+        seleniumwire_options=seleniumwire_options,
+        service=ChromiumService(ChromeDriverManager().install())
+    ) as driver:
 
 
     driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
