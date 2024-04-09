@@ -5,7 +5,7 @@ import json
 from urllib.parse import unquote
 
 
-from selenium import webdriver
+# from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from webdriver_manager.core.os_manager import ChromeType
 from selenium.webdriver.support.ui import WebDriverWait
@@ -60,7 +60,7 @@ seleniumwire_options = {
     },
 }
 
-with webdriver.Chrome(options=options, service=ChromiumService(ChromeDriverManager().install())) as driver:
+with webdriver.Chrome(seleniumwire_options=seleniumwire_options, service=ChromiumService(ChromeDriverManager().install())) as driver:
 
 
     driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
