@@ -5,8 +5,8 @@ import json
 from urllib.parse import unquote
 
 
-# from selenium import webdriver
-from seleniumwire import webdriver
+from selenium import webdriver
+# from seleniumwire import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from webdriver_manager.core.os_manager import ChromeType
 from selenium.webdriver.support.ui import WebDriverWait
@@ -23,8 +23,10 @@ from bs4 import BeautifulSoup
 
 from pyvirtualdisplay import Display
 
-# display = Display(visible=0, size=(3024, 1964))
-# display.start()
+display = Display(visible=0, size=(3024, 1964), backend="xephyr")
+display.start()
+
+print(f'Virtual Display is alive: {display.is_alive()}')
 
 url = 'https://leroymerlin.ru/catalogue/tovary-dlya-uborki/'
 # url = 'https://myip.ru/'
@@ -38,7 +40,7 @@ options = Options()
 # options.add_experimental_option("excludeSwitches", ["enable-automation"])
 # options.add_experimental_option('useAutomationExtension', False)
 options.add_argument("--disable-blink-features=AutomationControlled")
-options.add_argument('--headless')
+# options.add_argument('--headless')
 options.add_argument('--no-sandbox')
 prefs = {"profile.managed_default_content_settings.images": 2}
 options.add_experimental_option("prefs", prefs)
@@ -57,7 +59,7 @@ def get_scripts(html):
 
 with webdriver.Chrome(
         options=options,
-        seleniumwire_options=seleniumwire_options,
+        # seleniumwire_options=seleniumwire_options,
         service=ChromiumService(ChromeDriverManager().install())
     ) as driver:
 
