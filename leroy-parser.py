@@ -25,8 +25,8 @@ from pyvirtualdisplay import Display
 
 display = Display(
         visible=0,
-        # size=(3024, 1964),
-        backend="xephyr"
+        size=(3024, 1964),
+        backend="xvfb"
     )
 display.start()
 
