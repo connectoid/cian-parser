@@ -23,7 +23,7 @@ from bs4 import BeautifulSoup
 
 from pyvirtualdisplay import Display
 
-display = Display(visible=0, size=(3024, 1964), backend="xvnc")
+display = Display(visible=0, size=(3024, 1964), backend="xephyr")
 display.start()
 
 print(f'Virtual Display is alive: {display.is_alive()}')
